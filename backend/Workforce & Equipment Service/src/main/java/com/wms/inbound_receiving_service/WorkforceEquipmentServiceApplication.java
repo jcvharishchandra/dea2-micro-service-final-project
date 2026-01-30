@@ -1,13 +1,13 @@
-package com.wms.inbound_receiving_service;
+package com.wms.workforce_equipment_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class InboundReceivingServiceApplication {
+public class WorkforceEquipmentServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(InboundReceivingServiceApplication.class, args);
+		SpringApplication.run(WorkforceEquipmentServiceApplication.class, args);
 	}
 
 }
