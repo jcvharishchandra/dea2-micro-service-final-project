@@ -1,4 +1,4 @@
-package com.wms.inbound_receiving_service.entity;
+package com.wms.inbound_receiving_service.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

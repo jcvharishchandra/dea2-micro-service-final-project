@@ -3,43 +3,94 @@ package com.wms.inbound_receiving_service.service.impl;
 import com.wms.inbound_receiving_service.dto.InboundRequestDTO;
 import com.wms.inbound_receiving_service.dto.InboundResponseDTO;
 import com.wms.inbound_receiving_service.entity.InboundShipment;
+import com.wms.inbound_receiving_service.exception.ResourceNotFoundException;
 import com.wms.inbound_receiving_service.repository.InboundRepository;
 import com.wms.inbound_receiving_service.service.InboundService;
+import com.wms.inbound_receiving_service.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class InboundServiceImpl implements InboundService {
 
-    private final InboundRepository inboundRepository;
+    private final InboundReceiptRepository receiptRepository;
+    private final SupplierRepository supplierRepository;
+    private final ProductRepository productRepository;
 
     @Override
+    @Transactional
     public InboundResponseDTO receiveShipment(InboundRequestDTO request) {
-        InboundShipment shipment = new InboundShipment();
-        shipment.setSupplierName(request.getSupplierName());
-        shipment.setProductName(request.getProductName());
-        shipment.setQuantity(request.getQuantity());
-        shipment.setStatus("RECEIVED");
+        Supplier supplier = supplierRepository.findBySupplierName(request.getSupplierName())
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
 
-        InboundShipment saved = inboundRepository.save(shipment);
-        return map(saved);
+        Product product = productRepository.findByProductName(request.getProductName())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        InboundReceipt receipt = new InboundReceipt();
+        receipt.setSupplier(supplier);
+        receipt.setReceiptDate(LocalDate.now());
+        receipt.setStatus("RECEIVED");
+        receipt.setGrnNumber("GRN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+
+        InboundReceiptItem item = new InboundReceiptItem();
+        item.setProduct(product);
+        item.setQuantityReceived(request.getQuantity());
+        item.setReceipt(receipt);
+        receipt.getItems().add(item);
+
+        InboundReceipt saved = receiptRepository.save(receipt);
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public List<InboundResponseDTO> getAllShipments() {
+        return receiptRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public InboundResponseDTO updateShipmentStatus(Long id, String status) {
+        InboundReceipt receipt = receiptRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Receipt not found"));
+        receipt.setStatus(status);
+        return mapToResponse(receiptRepository.save(receipt));
+    }
+
+    @Override
+    @Transactional
+    public void deleteShipment(Long id) {
+        if (!receiptRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Receipt not found");
+        }
+        receiptRepository.deleteById(id);
     }
 
     @Override
     public InboundResponseDTO getShipmentById(Long id) {
-        InboundShipment shipment = inboundRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
-        return map(shipment);
+        InboundReceipt receipt = receiptRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Receipt not found"));
+        return mapToResponse(receipt);
     }
 
-    private InboundResponseDTO map(InboundShipment shipment) {
+    private InboundResponseDTO mapToResponse(InboundReceipt receipt) {
+        String productName = receipt.getItems().isEmpty() ? "N/A" :
+                receipt.getItems().get(0).getProduct().getProductName();
+        int qty = receipt.getItems().isEmpty() ? 0 :
+                receipt.getItems().get(0).getQuantityReceived();
+
         return InboundResponseDTO.builder()
-                .id(shipment.getId())
-                .supplierName(shipment.getSupplierName())
-                .productName(shipment.getProductName())
-                .quantity(shipment.getQuantity())
-                .status(shipment.getStatus())
+                .id(receipt.getReceiptId())
+                .supplierName(receipt.getSupplier().getSupplierName())
+                .productName(productName)
+                .quantity(qty)
+                .status(receipt.getStatus())
                 .build();
     }
 }
