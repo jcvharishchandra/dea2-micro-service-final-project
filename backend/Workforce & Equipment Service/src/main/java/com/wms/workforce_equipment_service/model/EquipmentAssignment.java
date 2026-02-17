@@ -22,8 +22,9 @@ public class EquipmentAssignment {
     @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
-    @Column(name = "worker_id", nullable = false)
-    private Long workerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worker_id", nullable = false)
+    private Worker worker;
 
     @Column(name = "assigned_date", nullable = false)
     private LocalDateTime assignedDate;

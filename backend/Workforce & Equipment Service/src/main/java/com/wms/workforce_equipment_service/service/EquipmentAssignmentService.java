@@ -5,8 +5,10 @@ import com.wms.workforce_equipment_service.dto.response.EquipmentAssignmentRespo
 import com.wms.workforce_equipment_service.exception.ResourceNotFoundException;
 import com.wms.workforce_equipment_service.model.Equipment;
 import com.wms.workforce_equipment_service.model.EquipmentAssignment;
+import com.wms.workforce_equipment_service.model.Worker;
 import com.wms.workforce_equipment_service.repository.EquipmentAssignmentRepository;
 import com.wms.workforce_equipment_service.repository.EquipmentRepository;
+import com.wms.workforce_equipment_service.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class EquipmentAssignmentService implements IEquipmentAssignmentService {
 
     private final EquipmentAssignmentRepository assignmentRepository;
     private final EquipmentRepository equipmentRepository;
+    private final WorkerRepository workerRepository;
 
     @Override
     public List<EquipmentAssignmentResponse> getAllAssignments() {
@@ -56,9 +59,12 @@ public class EquipmentAssignmentService implements IEquipmentAssignmentService {
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + request.getEquipmentId()));
 
+        Worker worker = workerRepository.findById(request.getWorkerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Worker not found with id: " + request.getWorkerId()));
+
         EquipmentAssignment assignment = new EquipmentAssignment();
         assignment.setEquipment(equipment);
-        assignment.setWorkerId(request.getWorkerId());
+        assignment.setWorker(worker);
         assignment.setAssignedDate(request.getAssignedDate());
         assignment.setReturnedDate(request.getReturnedDate());
         assignment.setStatus(request.getStatus());
@@ -75,8 +81,11 @@ public class EquipmentAssignmentService implements IEquipmentAssignmentService {
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + request.getEquipmentId()));
 
+        Worker worker = workerRepository.findById(request.getWorkerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Worker not found with id: " + request.getWorkerId()));
+
         assignment.setEquipment(equipment);
-        assignment.setWorkerId(request.getWorkerId());
+        assignment.setWorker(worker);
         assignment.setAssignedDate(request.getAssignedDate());
         assignment.setReturnedDate(request.getReturnedDate());
         assignment.setStatus(request.getStatus());
@@ -97,7 +106,8 @@ public class EquipmentAssignmentService implements IEquipmentAssignmentService {
                 assignment.getId(),
                 assignment.getEquipment().getId(),
                 assignment.getEquipment().getName(),
-                assignment.getWorkerId(),
+                assignment.getWorker().getId(),
+                assignment.getWorker().getName(),
                 assignment.getAssignedDate(),
                 assignment.getReturnedDate(),
                 assignment.getStatus()

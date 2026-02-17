@@ -15,6 +15,7 @@ public class EquipmentAssignmentResponse {
     private Long equipmentId;
     private String equipmentName;
     private Long workerId;
+    private String workerName;
     private LocalDateTime assignedDate;
     private LocalDateTime returnedDate;
     private String status;
