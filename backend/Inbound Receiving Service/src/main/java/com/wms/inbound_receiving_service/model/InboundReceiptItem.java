@@ -3,11 +3,15 @@ package com.wms.inbound_receiving_service.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "inbound_receipt_items")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class InboundReceiptItem {
 
     @Id

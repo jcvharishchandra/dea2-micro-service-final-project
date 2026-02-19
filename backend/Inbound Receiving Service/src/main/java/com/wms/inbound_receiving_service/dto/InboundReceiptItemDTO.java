@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InboundResponseDTO {
+public class InboundReceiptItemDTO {
     private Long id;
-    private String supplierName;
+    private Long receiptId;
     private String productName;
-    private int quantity;
-    private String status;
+    private int quantityReceived;
+    private String condition;
 }

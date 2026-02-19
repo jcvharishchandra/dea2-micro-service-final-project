@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InboundResponseDTO {
+public class InboundReceiptDTO {
     private Long id;
+    private String receiptNumber;
     private String supplierName;
-    private String productName;
-    private int quantity;
+    private LocalDateTime receivedAt;
     private String status;
 }

@@ -1,36 +1,43 @@
 package com.wms.inbound_receiving_service.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents the Header of a Goods Receiving Note (GRN).
- * This entity tracks who sent the goods and when they arrived.
- */
 @Entity
 @Table(name = "inbound_receipts")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class InboundReceipt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long receiptId;
 
+    @Column(unique = true, nullable = false)
+    private String grnNumber;
+
     private LocalDate receiptDate;
-    private String status; // e.g., RECEIVED, VERIFIED
-    private String grnNumber; // Unique tracking reference
+
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
+    private Long shipmentId;
 
-    // CascadeType.ALL ensures items are saved automatically when the receipt is saved
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InboundReceiptItem> items = new ArrayList<>();
+
+    public void addItem(InboundReceiptItem item) {
+        items.add(item);
+        item.setReceipt(this);
+    }
 }

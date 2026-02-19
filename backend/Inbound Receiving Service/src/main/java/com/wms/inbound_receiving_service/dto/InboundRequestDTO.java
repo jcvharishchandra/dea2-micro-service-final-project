@@ -11,7 +11,10 @@ public class InboundRequestDTO {
     @NotBlank(message = "Product name is required")
     private String productName;
 
+    @NotBlank(message = "SKU/Reference is required")
+    private String sku;
+
     @NotNull(message = "Quantity is required")
-    @Positive(message = "Quantity must be positive")
-    private Integer quantity;
+    @Min(value = 1, message = "Quantity must be at least 1")
+    private Integer quantity;;
 }
