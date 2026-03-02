@@ -21,6 +21,7 @@ import {
   getStorageLocationsByWorkerId,
   removeWorkerStorageLocation,
 } from "@/services/workforce";
+import { getWorkerAllStorageLocations } from "@/services/workforce";
 
 const formatDate = (dt) => {
   if (!dt) return "—";
@@ -36,6 +37,7 @@ const formatDate = (dt) => {
 export default function WorkerStorageLocationsPage() {
   const [assignments, setAssignments] = useState([]);
   const [workers, setWorkers] = useState([]);
+  const [storageLocations, setStorageLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -50,8 +52,18 @@ export default function WorkerStorageLocationsPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const wRes = await getAllWorkers();
+      const [wRes, slRes] = await Promise.all([
+        getAllWorkers(),
+        getWorkerAllStorageLocations(),
+      ]);
       setWorkers(wRes.data);
+      setStorageLocations(slRes.data);
+
+      // Build a lookup map for storage location labels
+      const locationMap = {};
+      slRes.data.forEach((loc) => {
+        locationMap[loc.locationId] = `${loc.zone} — Rack ${loc.rackNo}, Bin ${loc.binNo}`;
+      });
 
       // Fetch storage location assignments for all workers
       const allAssignments = [];
@@ -61,6 +73,7 @@ export default function WorkerStorageLocationsPage() {
           const mapped = res.data.map((a) => ({
             ...a,
             workerName: worker.name,
+            locationLabel: locationMap[a.storageLocationId] || `ID: ${a.storageLocationId}`,
           }));
           allAssignments.push(...mapped);
         } catch {
@@ -128,7 +141,11 @@ export default function WorkerStorageLocationsPage() {
   const columns = [
     { id: "id", label: "ID", sortable: true },
     { id: "workerName", label: "Worker", sortable: true },
-    { id: "storageLocationId", label: "Storage Location ID", sortable: true },
+    {
+      id: "locationLabel",
+      label: "Storage Location",
+      sortable: true,
+    },
     {
       id: "assignedDate",
       label: "Assigned Date",
@@ -184,7 +201,7 @@ export default function WorkerStorageLocationsPage() {
       <DataTable
         columns={columns}
         rows={assignments}
-        searchKeys={["workerName", "storageLocationId"]}
+        searchKeys={["workerName", "locationLabel"]}
         emptyComponent={
           <EmptyState
             icon={<LocationOnIcon />}
@@ -198,6 +215,7 @@ export default function WorkerStorageLocationsPage() {
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
         workers={workers}
+        storageLocations={storageLocations}
         loading={saving}
       />
 

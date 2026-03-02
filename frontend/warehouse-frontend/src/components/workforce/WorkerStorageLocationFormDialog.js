@@ -24,23 +24,22 @@ export default function WorkerStorageLocationFormDialog({
   onClose,
   onSubmit,
   workers = [],
+  storageLocations = [],
   loading,
 }) {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
-  const [locationInput, setLocationInput] = useState("");
 
   useEffect(() => {
     setForm(initialForm);
-    setLocationInput("");
     setErrors({});
   }, [open]);
 
   const validate = () => {
     const e = {};
     if (!form.workerId) e.workerId = "Worker is required";
-    if (!locationInput || isNaN(locationInput))
-      e.storageLocationId = "Valid Storage Location ID is required";
+    if (!form.storageLocationId)
+      e.storageLocationId = "Storage Location is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -49,7 +48,7 @@ export default function WorkerStorageLocationFormDialog({
     if (!validate()) return;
     onSubmit({
       workerId: form.workerId,
-      storageLocationId: Number(locationInput),
+      storageLocationId: form.storageLocationId,
     });
   };
 
@@ -82,14 +81,22 @@ export default function WorkerStorageLocationFormDialog({
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
-                label="Storage Location ID"
-                type="number"
+                label="Storage Location"
+                select
                 fullWidth
-                value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
+                value={form.storageLocationId}
+                onChange={(e) =>
+                  setForm({ ...form, storageLocationId: e.target.value })
+                }
                 error={!!errors.storageLocationId}
                 helperText={errors.storageLocationId}
-              />
+              >
+                {storageLocations.map((loc) => (
+                  <MenuItem key={loc.locationId} value={loc.locationId}>
+                    {loc.zone} — Rack {loc.rackNo}, Bin {loc.binNo}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
           </Grid>
         </Box>
