@@ -765,6 +765,54 @@
 			]
 		},
 		{
+			"name": "Update Worker",
+			"description": "Endpoints to update worker assignments",
+			"item": [
+				{
+					"name": "Update Worker ID",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"WK-001\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/orders/{{orderId}}/worker",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "orders", "{{orderId}}", "worker"]
+						},
+						"description": "Update worker ID for an order.\n\n**Request Body:**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workerId | string | ✅ | Worker ID |"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Worker ID is updated', function () {",
+									"    if(pm.response.code === 200) {",
+									"        pm.expect(pm.response.json().workerId).to.eql('WK-001');",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Error Handling Tests",
 			"description": "Test requests that verify error responses",
 			"item": [
