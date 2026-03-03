@@ -29,4 +29,8 @@ public interface OrderService {
     OrderResponse updateOrderStatus(UUID id, UpdateOrderStatusRequest request);
 
     OrderResponse updateWorkerId(UUID id, UpdateWorkerRequest request);
+
+    OrderResponse updateOrder(UUID id, com.wms.orderservice.dto.request.UpdateOrderRequest request);
+
+    java.util.List<com.wms.orderservice.dto.response.OrderStatusHistoryResponse> getOrderStatusHistory(UUID id);
 }

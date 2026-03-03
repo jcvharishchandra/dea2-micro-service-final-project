@@ -76,4 +76,13 @@ public class Order {
         items.remove(item);
         item.setOrder(null);
     }
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<OrderStatusHistory> statusHistory = new ArrayList<>();
+
+    public void addStatusHistory(OrderStatusHistory history) {
+        statusHistory.add(history);
+        history.setOrder(this);
+    }
 }
