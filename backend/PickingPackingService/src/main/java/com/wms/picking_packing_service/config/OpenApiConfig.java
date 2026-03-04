@@ -1,26 +1,23 @@
 package com.wms.picking_packing_service.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${server.port:8092}")
-    private String serverPort;
-
     @Bean
     public OpenAPI pickingPackingServiceAPI() {
         Server server = new Server();
-        server.setUrl("http://localhost:" + serverPort);
-        server.setDescription("Picking & Packing Service - Development");
+                server.setUrl("/");
+                server.setDescription("Picking & Packing Service");
 
         Contact contact = new Contact();
         contact.setName("WMS Development Team");
