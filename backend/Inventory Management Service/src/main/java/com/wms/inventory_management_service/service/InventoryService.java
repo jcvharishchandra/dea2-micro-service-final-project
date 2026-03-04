@@ -342,7 +342,7 @@ public class InventoryService {
             return product != null && product.name() != null ? product.name() : "Unknown Product";
         } catch (ResourceNotFoundException ex) {
             return "Product Not Found";
-        } catch (ServiceException ex) {
+        } catch (Exception ex) {
             return "Product Service Unavailable";
         }
     }
