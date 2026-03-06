@@ -1,27 +1,26 @@
 import api from "@/lib/axios";
 
-// GET: All raw shipment logs
-export const getInboundShipments = () => api.get("/api/v1/inbound/shipments");
+// ── Inbound Shipments ─────────────────────────────────
+const BASE = "/api/v1/inbound";
 
-// GET: All finalized receipts (Enriched with Supplier Names)
-export const getAllReceipts = () => api.get("/api/v1/inbound/receipts");
-
-// GET: All specific receipt items (Enriched with Product Names)
-export const getAllReceiptItems = () => api.get("/api/v1/inbound/receipt-items");
-
-// GET: Single shipment/receipt details by ID
-export const getShipmentById = (id) => api.get(`/api/v1/inbound/${id}`);
-
-// POST: Process and finalize a shipment (Receive Goods)
-export const receiveGoods = (data) => api.post("/api/v1/inbound/receive", data);
-
-// PATCH: Update the status of a shipment
+export const getInboundShipments = () => api.get(`${BASE}/shipments`);
+export const getShipmentById = (id) => api.get(`${BASE}/${id}`);
+export const receiveGoods = (data) => api.post(`${BASE}/receive`, data);
 export const updateShipmentStatus = (id, status) =>
-    api.patch(`/api/v1/inbound/${id}/status`, null, { params: { status } });
+  api.patch(`${BASE}/${id}/status`, null, { params: { status } });
+export const deleteShipment = (id) => api.delete(`${BASE}/${id}`);
 
-// DELETE: Remove a shipment record
-export const deleteShipment = (id) => api.delete(`/api/v1/inbound/${id}`);
+// ── Receipts (GRNs) ──────────────────────────────────
+export const getAllReceipts = () => api.get(`${BASE}/receipts`);
+export const getAllReceiptItems = () => api.get(`${BASE}/receipt-items`);
 
-// NEW: Fetch data for searchable dropdowns
-export const getAvailableSuppliers = () => api.get("/api/v1/suppliers");
-export const getAvailableProducts = () => api.get("/api/v1/products");
+// ── Supplier + Product (through the gateway) ─────────
+export const getAvailableSuppliers = async () => {
+  const res = await api.get("/api/v1/suppliers");
+  return res.data?.suppliers || [];
+};
+
+export const getAvailableProducts = async () => {
+  const res = await api.get("/api/products");
+  return res.data || [];
+};

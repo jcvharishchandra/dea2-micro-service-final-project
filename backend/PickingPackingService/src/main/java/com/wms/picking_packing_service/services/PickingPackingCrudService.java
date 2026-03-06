@@ -3,6 +3,7 @@ package com.wms.picking_packing_service.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -61,6 +62,10 @@ public class PickingPackingCrudService {
             throw new BadRequestException("Worker ID is required");
         }
 
+        if (!repository.findByOrderId(dto.getOrderId()).isEmpty()) {
+            throw new BadRequestException("Picking task already exists for order ID: " + dto.getOrderId());
+        }
+
         try {
             orderClient.getOrderById(dto.getOrderId());
         } catch (Exception e) {
@@ -68,7 +73,7 @@ public class PickingPackingCrudService {
         }
 
         if (!workerClient.isWorkerAvailable(dto.getWorkerId())) {
-            throw new BadRequestException("Worker is not available with ID: " + dto.getWorkerId());
+            throw new BadRequestException("Worker not found with ID: " + dto.getWorkerId());
         }
 
         PickingPacking entity = new PickingPacking();
@@ -81,6 +86,13 @@ public class PickingPackingCrudService {
         mapper.mapItemsForCreate(entity, dto.getItems());
 
         PickingPacking saved = repository.save(entity);
+
+        try {
+            orderClient.updateOrderStatus(saved.getOrderId(), STATUS_PICKING);
+        } catch (Exception exception) {
+            log.warn("Failed to update order status to PICKING for orderId={}: {}", saved.getOrderId(), exception.getMessage());
+        }
+
         return mapper.toDTO(saved);
     }
 
@@ -154,7 +166,7 @@ public class PickingPackingCrudService {
         return mapper.toDTO(updated);
     }
 
-    public List<PickingPackingDTO> getByOrderId(Long orderId) {
+    public List<PickingPackingDTO> getByOrderId(UUID orderId) {
         return repository.findByOrderId(orderId).stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -193,4 +205,5 @@ public class PickingPackingCrudService {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PickingPacking not found with ID: " + id));
     }
+
 }

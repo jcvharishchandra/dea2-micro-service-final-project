@@ -1,19 +1,38 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box } from "@mui/material";
+
+import React, { useEffect, useState } from "react";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Box,
+} from "@mui/material";
 import { getAllReceipts } from "@/services/inbound_service/inboundApi";
 
 export default function ReceiptsPage() {
   const [receipts, setReceipts] = useState([]);
 
   useEffect(() => {
-    getAllReceipts().then(res => setReceipts(res.data));
+    getAllReceipts()
+      .then((res) => setReceipts(res.data || []))
+      .catch((err) => console.error(err));
   }, []);
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>Warehouse Receipts (GRN)</Typography>
-      <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+        Warehouse Receipts (GRN)
+      </Typography>
+
+      <Paper
+        elevation={0}
+        sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}
+      >
         <TableContainer>
           <Table>
             <TableHead sx={{ bgcolor: "#f8fafc" }}>
@@ -23,14 +42,25 @@ export default function ReceiptsPage() {
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {receipts.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell sx={{ color: "#6366f1", fontWeight: 600 }}>{r.receiptNumber}</TableCell>
+                  <TableCell sx={{ color: "#6366f1", fontWeight: 600 }}>
+                    {r.receiptNumber || r.grnNumber}
+                  </TableCell>
                   <TableCell>{r.supplierName}</TableCell>
                   <TableCell>{r.status}</TableCell>
                 </TableRow>
               ))}
+
+              {receipts.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    No receipts found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
