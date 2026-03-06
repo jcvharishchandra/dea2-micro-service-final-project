@@ -38,6 +38,9 @@ const STATUS_MAP = {
   REJECTED:          { color: "error",     label: "Rejected" },
   CANCELLED:         { color: "default",   label: "Cancelled" },
   PICKING_REQUESTED: { color: "secondary", label: "Picking Requested" },
+  PACKED:            { color: "info",      label: "Packed" },
+  DISPATCHED:        { color: "warning",   label: "Dispatched" },
+  DELIVERED:         { color: "success",   label: "Delivered" },
 };
 
 const getStatusChipProps = (status) => {
