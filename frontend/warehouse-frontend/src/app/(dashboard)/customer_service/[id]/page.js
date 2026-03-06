@@ -162,9 +162,11 @@ export default function CustomerDetailView({ params }) {
             return;
         }
 
-        const validAddresses = addresses.filter((a) => a.line1.trim() && a.city.trim());
+        const validAddresses = addresses.filter(
+            (a) => a.line1?.trim() && a.city?.trim() && a.district?.trim() && a.postalCode?.trim() && a.country?.trim()
+        );
         if (validAddresses.length === 0) {
-            showToast("warning", "At least one valid address (Line 1 & City) is required.");
+            showToast("warning", "At least one complete address (Line 1, City, District, Postal Code & Country) is required.");
             return;
         }
 
@@ -423,14 +425,14 @@ export default function CustomerDetailView({ params }) {
                                                 {order.orderNumber}
                                             </TableCell>
                                             <TableCell>
-                                                <Chip 
-                                                    label={order.status?.replace(/_/g, " ")} 
-                                                    size="small" 
-                                                    sx={{ fontWeight: 600, fontSize: "0.75rem", letterSpacing: "0.5px" }} 
+                                                <Chip
+                                                    label={order.status?.replace(/_/g, " ")}
+                                                    size="small"
+                                                    sx={{ fontWeight: 600, fontSize: "0.75rem", letterSpacing: "0.5px" }}
                                                     color={
-                                                        order.status === "DELIVERED" || order.status === "APPROVED" ? "success" : 
-                                                        order.status === "CANCELLED" || order.status === "REJECTED" ? "error" : 
-                                                        order.status === "CREATED" ? "default" : "primary"
+                                                        order.status === "DELIVERED" || order.status === "APPROVED" ? "success" :
+                                                            order.status === "CANCELLED" || order.status === "REJECTED" ? "error" :
+                                                                order.status === "CREATED" ? "default" : "primary"
                                                     }
                                                 />
                                             </TableCell>
@@ -438,8 +440,8 @@ export default function CustomerDetailView({ params }) {
                                             <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell align="right">
                                                 <Tooltip title="View Order Details">
-                                                    <IconButton 
-                                                        size="small" 
+                                                    <IconButton
+                                                        size="small"
                                                         onClick={() => router.push(`/order_service/${order.id}`)}
                                                         sx={{ color: "#6366f1", "&:hover": { bgcolor: "#EEF2FF" } }}
                                                     >
